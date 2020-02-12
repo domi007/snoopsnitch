@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/root/research/snoopsnitch/SnoopSnitch/app/src/main/shaders"/></dataSet><dataSet config="nobuildcheck"><source path="/root/research/snoopsnitch/SnoopSnitch/app/src/nobuildcheck/shaders"/></dataSet><dataSet config="debug"><source path="/root/research/snoopsnitch/SnoopSnitch/app/src/debug/shaders"/></dataSet><dataSet config="nobuildcheckDebug"><source path="/root/research/snoopsnitch/SnoopSnitch/app/src/nobuildcheckDebug/shaders"/></dataSet></merger>

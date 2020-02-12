@@ -1,0 +1,45 @@
+{
+    "logs": [
+        {
+            "outputFile": "/root/research/snoopsnitch/SnoopSnitch/app/build/intermediates/incremental/mergeNobuildcheckReleaseResources/merged.dir/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/root/.gradle/caches/transforms-1/files-1.1/appcompat-v7-25.2.0.aar/cebc0fb6881b19dbe32156bd723ef147/res/values-hdpi-v4/values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    },
+                    "to": {
+                        "startLines": "5",
+                        "startColumns": "4",
+                        "startOffsets": "182",
+                        "endLines": "9",
+                        "endColumns": "13",
+                        "endOffsets": "454"
+                    }
+                },
+                {
+                    "source": "/root/research/snoopsnitch/SnoopSnitch/app/src/main/res/values-hdpi/dimens.xml",
+                    "from": {
+                        "startLines": "4,3,2",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "102,59,17",
+                        "endColumns": "41,42,41",
+                        "endOffsets": "139,97,54"
+                    },
+                    "to": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,97,140",
+                        "endColumns": "41,42,41",
+                        "endOffsets": "92,135,177"
+                    }
+                }
+            ]
+        }
+    ]
+}

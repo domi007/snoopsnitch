@@ -1,0 +1,1 @@
+[{"outputType":{"type":"INSTANT_RUN_MERGED_MANIFESTS"},"apkInfo":{"type":"MAIN","splits":[],"versionCode":37,"versionName":"2.0.8","enabled":true,"outputFile":"app-safetynet-debug.apk","fullName":"safetynetDebug","baseName":"safetynet-debug"},"path":"AndroidManifest.xml","properties":{"packageId":"de.srlabs.snoopsnitch","split":"","minSdkVersion":"16"}}]

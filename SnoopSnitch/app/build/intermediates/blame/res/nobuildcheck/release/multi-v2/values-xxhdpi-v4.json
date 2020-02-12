@@ -1,0 +1,26 @@
+{
+    "logs": [
+        {
+            "outputFile": "/root/research/snoopsnitch/SnoopSnitch/app/build/intermediates/incremental/mergeNobuildcheckReleaseResources/merged.dir/values-xxhdpi-v4/values-xxhdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/root/research/snoopsnitch/SnoopSnitch/app/src/main/res/values-xxhdpi/dimens.xml",
+                    "from": {
+                        "startLines": "4,3,2",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "101,58,17",
+                        "endColumns": "41,42,40",
+                        "endOffsets": "138,96,53"
+                    },
+                    "to": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,97,140",
+                        "endColumns": "41,42,40",
+                        "endOffsets": "92,135,176"
+                    }
+                }
+            ]
+        }
+    ]
+}

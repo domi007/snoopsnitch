@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="de.srlabs.snoopsnitch.ExampleUnitTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2019-01-19T22:38:09" hostname="seco30" time="0.0">
+  <properties/>
+  <testcase name="addition_isCorrect" classname="de.srlabs.snoopsnitch.ExampleUnitTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
