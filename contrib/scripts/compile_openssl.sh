@@ -2,7 +2,7 @@
 
 # The openssl build system does not add a minus between ${CROSS_COMPILE} and the tool to call (e.g. gcc).
 export CROSS_COMPILE=${CROSS_COMPILE}-
-export CROSS_SYSROOT="$NDK_DIR/platforms/android-19/arch-arm"
+export CROSS_SYSROOT="$NDK_DIR/platforms/android-21/arch-arm64"
 export CC="gcc --sysroot=${SYSROOT}"
 
 echo "CROSS_COMPILE: $CROSS_COMPILE"

@@ -1,4 +1,6 @@
 #!/bin/sh
+echo "Copying disabled, fuck that"
+exit 0
 
 set -e
 

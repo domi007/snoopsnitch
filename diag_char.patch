@@ -1,0 +1,144 @@
+diff -rupN snoopsnitch/contrib/diag_helper/jni/diag-helper.c snoopsnitch.patch/contrib/diag_helper/jni/diag-helper.c
+--- snoopsnitch/contrib/diag_helper/jni/diag-helper.c	2020-02-10 08:29:46.046675093 +0100
++++ snoopsnitch.patch/contrib/diag_helper/jni/diag-helper.c	2020-02-10 08:50:34.976698289 +0100
+@@ -49,6 +49,37 @@ loghex(const char *desc, char *buf, size
+         logmsg(ANDROID_LOG_DEBUG, "%s:%s", desc, hexbuf);
+         free(hexbuf);
+ }
++/*
++ * Android 10.0: switch_logging_mode structure
++ * Reference: https://android.googlesource.com/kernel/msm/+/refs/tags/android-10.0.0_r0.18/drivers/char/diag/diagchar.h
++ */
++
++struct diag_logging_mode_param_t_q {
++	uint32_t req_mode;
++	uint32_t peripheral_mask;
++	uint32_t pd_mask;
++	uint8_t mode_param;
++} __packed;
++
++/*
++ * Android 9.0: switch_logging_mode structure
++ * Reference: https://android.googlesource.com/kernel/msm.git/+/android-9.0.0_r0.31/drivers/char/diag/diagchar.h
++ */
++struct diag_logging_mode_param_t_pie {
++	uint32_t req_mode;
++	uint32_t peripheral_mask;
++	uint32_t pd_mask;
++	uint8_t mode_param;
++	uint8_t diag_id;
++	uint8_t pd_val;
++	uint8_t reserved;
++	int peripheral;
++} __packed;
++
++/*
++ * Android 7.0: switch_logging_mode structure
++ * Reference: https://android.googlesource.com/kernel/msm.git/+/android-7.1.0_r0.3/drivers/char/diag/diagchar.h
++ */
+ 
+ struct diag_logging_mode_param_t {
+ 	uint32_t req_mode;
+@@ -70,22 +101,90 @@ open_diag_dev(void)
+                 logmsg(ANDROID_LOG_FATAL, "error opening diag device: %m");
+                 goto exit;
+         }
++	#define DIAG_CON_APSS           (0x0001)        /* Bit mask for APSS */
++	#define DIAG_CON_MPSS           (0x0002)        /* Bit mask for MPSS */
++	#define DIAG_CON_LPASS          (0x0004)        /* Bit mask for LPASS */
++	#define DIAG_CON_WCNSS          (0x0008)        /* Bit mask for WCNSS */
++	#define DIAG_CON_SENSORS        (0x0010)        /* Bit mask for Sensors */
++	#define DIAG_CON_NONE           (0x0000)        /* Bit mask for No SS*/
++	#define DIAG_CON_ALL            (DIAG_CON_APSS | DIAG_CON_MPSS \
++					| DIAG_CON_LPASS | DIAG_CON_WCNSS \
++					| DIAG_CON_SENSORS)
++
+ 
+         const unsigned long DIAG_IOCTL_SWITCH_LOGGING = 7;
+         const int MEMORY_DEVICE_MODE = 2;
+ 
+-        struct diag_logging_mode_param_t stMode = {
+-			MEMORY_DEVICE_MODE, 0, 1
+-		};
+-
+-        //  In commit ae92f0b2 of the MSM kernel this ioctl was changed to
+-        //  have its parameter passed as a pointer. I don't know how to detect
+-        //  that reliably, so I brute-force the right method.
+-        rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, MEMORY_DEVICE_MODE);
+-        if (rv < 0) {
+-            olderrno = errno;
+-            rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, (void *)&stMode);
+-        }
++	/*
++	 * Enable logging mode
++	 * Reference: https://android.googlesource.com/kernel/msm/+/refs/tags/android-10.0.0_r0.18/drivers/char/diag/diagchar.h
++	 */
++	if (rv < 0) {
++		/* Android 10.0 mode
++		 * * Reference: https://android.googlesource.com/kernel/msm/+/refs/tags/android-10.0.0_r0.18/drivers/char/diag/diagchar_core.c
++		 * */
++		struct diag_logging_mode_param_t_q new_mode;
++		new_mode.req_mode = MEMORY_DEVICE_MODE;
++		new_mode.mode_param = 0;
++		new_mode.pd_mask = 0;
++		new_mode.peripheral_mask = DIAG_CON_ALL;
++		rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, (char *)& new_mode);
++	}
++	/*
++	 * Enable logging mode
++	 * Reference: https://android.googlesource.com/kernel/msm.git/+/android-6.0.0_r0.9/drivers/char/diag/diagchar_core.c
++	 */
++	if (rv < 0) {
++		/* Android 9.0 mode
++		 * * Reference: https://android.googlesource.com/kernel/msm.git/+/android-9.0.0_r0.31/drivers/char/diag/diagchar_core.c
++		 * */
++		struct diag_logging_mode_param_t_pie new_mode;
++		new_mode.req_mode = MEMORY_DEVICE_MODE;
++		new_mode.mode_param = 0;
++		new_mode.pd_mask = 0;
++		new_mode.peripheral_mask = DIAG_CON_ALL;
++		rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, (char *)& new_mode);
++	}
++	if (rv < 0) {
++		logmsg(ANDROID_LOG_DEBUG, "Android-9.0 ioctl SWITCH_LOGGING fails: %s \n", strerror(errno));
++		/* Android 7.0 mode
++		 * * Reference: https://android.googlesource.com/kernel/msm.git/+/android-7.1.0_r0.3/drivers/char/diag/diagchar_core.c
++		 * */
++		struct diag_logging_mode_param_t new_mode;
++		new_mode.req_mode = MEMORY_DEVICE_MODE;
++		new_mode.peripheral_mask = DIAG_CON_ALL;
++		new_mode.mode_param = 0;
++		logmsg(ANDROID_LOG_DEBUG, "&new_mode=%p peripheral_mask=%d req_mode=%d mode_param=%d\n", &new_mode, new_mode.peripheral_mask, new_mode.req_mode, new_mode.mode_param);
++		rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, (char *)& new_mode);
++	}
++	if (rv < 0) {
++		logmsg(ANDROID_LOG_DEBUG, "Android-7.0 ioctl SWITCH_LOGGING fails: %s \n", strerror(errno));
++		// Reference: https://android.googlesource.com/kernel/msm.git/+/android-6.0.0_r0.9/drivers/char/diag/diagchar_core.c
++		rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, (char *) &MEMORY_DEVICE_MODE);
++	}
++	if (rv < 0) {
++		logmsg(ANDROID_LOG_DEBUG, "ioctl SWITCH_LOGGING fails: %s \n", strerror(errno));
++		// perror("ioctl SWITCH_LOGGING");
++		// Yuanjie: the following works for Samsung S5
++		rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, (char *) MEMORY_DEVICE_MODE);
++	}
++	if (rv < 0) {
++		logmsg(ANDROID_LOG_DEBUG, "Android-7.0 ioctl SWITCH_LOGGING fails: %s \n", strerror(errno));
++		// perror("Alternative ioctl SWITCH_LOGGING");
++		// Yuanjie: the following is used for Xiaomi RedMi 4
++		rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, (char *) MEMORY_DEVICE_MODE, 12, 0, 0, 0, 0);
++	}
++	if (rv < 0) {
++		logmsg(ANDROID_LOG_DEBUG, "S7 Edge ioctl SWITCH_LOGGING fails: %s \n", strerror(errno));
++		// perror("Alternative ioctl SWITCH_LOGGING");
++		// XiaoMI 6 7.1.1
++		rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, MEMORY_DEVICE_MODE);
++	}
++	if (rv < 0) {
++		logmsg(ANDROID_LOG_DEBUG, "XiaoMI method 1 ioctl SWITCH_LOGGING fails: %s \n", strerror(errno));
++		// perror("Alternative ioctl SWITCH_LOGGING");
++		rv = ioctl(diag_fd, DIAG_IOCTL_SWITCH_LOGGING, &MEMORY_DEVICE_MODE, 12, 0, 0, 0, 0);
++	}
+ 
+         if (rv < 0) {
+             logmsg(ANDROID_LOG_FATAL, "error setting diag device logging mode: %s/%s",
